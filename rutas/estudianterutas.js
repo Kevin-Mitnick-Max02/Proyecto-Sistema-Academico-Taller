@@ -12,4 +12,3 @@ rutas.get('/getEstudiantes',async(req, res)=>{
     }
 });
 module.exports = rutas;
-asdf
