@@ -7,6 +7,7 @@ const academicoSchema = new mongoose.Schema({
     nummatricula: String,
     nombres: String,
     apellidos: String,
+    carrera: String,
     fecha_nacimiento: String,
     municipio: String,
     direccion: String,

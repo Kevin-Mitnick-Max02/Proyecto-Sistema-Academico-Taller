@@ -19,6 +19,7 @@ rutas.post('/registrar', async (req, res) => {
         nummatricula: req.body.nummatricula,
         nombres: req.body.nombres,
         apellidos: req.body.apellidos,
+        carrera: req.body.carrera,
         fecha_nacimiento: req.body.fecha_nacimiento,
         municipio: req.body.municipio,
         direccion: req.body.direccion,
@@ -58,4 +59,112 @@ rutas.delete('/eliminar/:id',async (req, res) => {
         res.status(500).json({mensaje : error.message});
     }
 });
+
+//- EndPoint 5, obtener una estudiante por su ID
+rutas.get('/estudiante/:id', async (req, res) => {
+    try{
+        const estudiante = await estudiantesModel.findById(req.params.id);
+        if(!estudiante)
+            return res.status(404).json({mensaje : 'Estudiante no encontrado!'});
+        else
+            return res.json(estudiante);
+    }catch(error){
+        res.status(500).json({mensaje: error.message});
+    }
+});
+//- EndPoint 6, obtener estudiante por municipio especifico
+rutas.get('/estudiantePorMunicipio/:municipios', async(req, res) => {
+    try{
+        const estudianteMunicipio = await estudiantesModel.find({municipio : req.params.municipios});
+        return res.json(estudianteMunicipio);
+    }catch(error){
+        res.status(500).json({mensaje: error.message});
+    }
+});
+//- EndPoint 7, eliminar todos los estudiantes 
+rutas.delete('/EliminarTodos', async(req, res) => {
+    try{
+        await estudiantesModel.deleteMany({});
+        return res.json({mensaje : 'Todos los estudiantes han sido eliminados'});
+    }catch(error){
+        res.status(500).json({mensaje: error.message});
+    }
+});
+//- EndPoint 8, contar el numero total de estudiantes
+rutas.get('/TotalEstudiantes', async(req, res) => {
+    try{
+        const total = await estudiantesModel.countDocuments();
+        return res.json({TotalEstudiantes: total});
+    }catch(error){
+        res.status(500).json({mensaje: error.message});
+    }
+});
+//- EndPoint 9, obtener estudiantes ordenadas por nombre ascendente
+rutas.get('/ordenarEstudiantes', async(req, res) => {
+    try{
+        const estudiantesOrdenados = await estudiantesModel.find().sort({nombres : 1});
+        res.status(200).json(estudiantesOrdenados);
+    }catch(error){
+        res.status(500).json({mensaje: error.message});
+    }
+});
+// EndPoint 10, filtrar estudiantes por carrera
+rutas.get('/filtrarporcarrera/:carrera', async (req, res) => {
+    const carrera = req.params.carrera;
+    try {
+      const estudiantes = await estudiantesModel.find({ carrera : req.params.carrera});
+      return res.json(estudiantes);
+    } catch (error) {
+        return res.status(500).json({mensaje: error.message});
+    }
+  });
+//- EndPoint 11, obtener estudiantes ordenadas por apellido ascendente
+rutas.get('/ordenarEstudiantesAP', async(req, res) => {
+    try{
+        const estudiantesOrdenadosAP = await estudiantesModel.find().sort({apellidos : 1});
+        res.status(200).json(estudiantesOrdenadosAP);
+    }catch(error){
+        res.status(500).json({mensaje: error.message});
+    }
+});  
+// EndPoint 12, busqueda de estudiantes por su número de matrícula
+rutas.get('/matricula/:nummatricula', async (req, res) => {
+    const nummatricula = req.params.nummatricula;
+    try {
+      const estudiante = await estudiantesModel.findOne({ nummatricula });
+      res.json(estudiante);
+    } catch (error) {
+        res.status(500).json({mensaje: error.message});
+    }
+});
+// EndPoint 13, Buscar estudiantes por número de celular o correo electrónico
+rutas.get('/busqueda/:termino', async (req, res) => {
+    const termino = req.params.termino;
+    try {
+      const estudiantes = await estudiantesModel.find({
+        $or: [
+          { numero_celular: { $regex: termino, $options: 'i' } },
+          { correo_electronico: { $regex: termino, $options: 'i' } }
+        ]
+      });
+      res.json(estudiantes);
+    } catch (error) {
+        res.status(500).json({mensaje: error.message});
+    }
+  });
+// EndPoint 14, Busqueda estudiantes por coincidencia de nombre o apellido
+rutas.get('/nombresapellidos/:termino', async (req, res) => {
+    const termino = req.params.termino;
+    try {
+      const estudiantes = await estudiantesModel.find({
+        $or: [
+          { nombres: { $regex: termino, $options: 'i' } },
+          { apellidos: { $regex: termino, $options: 'i' } }
+        ]
+      });
+      res.json(estudiantes);
+    } catch (error) {
+        res.status(500).json({mensaje: error.message});
+    }
+  });
 module.exports = rutas;
