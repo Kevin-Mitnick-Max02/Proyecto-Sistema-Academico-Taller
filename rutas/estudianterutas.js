@@ -167,4 +167,15 @@ rutas.get('/nombresapellidos/:termino', async (req, res) => {
         res.status(500).json({mensaje: error.message});
     }
   });
+// EndPoint 15, Obtener estudiantes ordenados por fecha de nacimiento
+rutas.get('/fecha_nacimiento/:orden', async (req, res) => {
+    const orden = req.params.orden === 'asc' ? 1 : -1;
+    try {
+      const estudiantes = await estudiantesModel.find().sort({ fecha_nacimiento: orden });
+      res.json(estudiantes);
+      console.log(orden);
+    } catch (error) {
+        res.status(500).json({mensaje: error.message});
+    }
+  });
 module.exports = rutas;
