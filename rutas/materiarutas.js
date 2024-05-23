@@ -1,36 +1,31 @@
 const express = require ('express');
 const rutas = express.Router();
-const estudiantesModel = require('../models/academico');
+const docenteModel = require('../models/docente');
 const UsuarioModel = require('../models/usuario');
+const materiaModel = require('../models/materia');
 
 // Creacion de EndPoint traer todos los estudiantes
-rutas.get('/getEstudiantes',async(req, res)=>{
+rutas.get('/getMateria',async(req, res)=>{
     try{
-        const estudiante = await estudiantesModel.find();
-        res.json(estudiante);
+        const materia = await materiaModel.find();
+        res.json(materia);
     }catch(error){
         res.status(500).json({mensaje: error.message});
     }
 });
 // EndPoint 2, Crear
 rutas.post('/registrar', async (req, res) => {
-    const estudiante = new estudiantesModel({
+    const materia= new materiaModel({
         id: req.body.id,
-        ci: req.body.ci,
-        nummatricula: req.body.nummatricula,
-        nombres: req.body.nombres,
-        apellidos: req.body.apellidos,
-        carrera: req.body.carrera,
-        fecha_nacimiento: req.body.fecha_nacimiento,
-        municipio: req.body.municipio,
-        direccion: req.body.direccion,
-        numero_celular: req.body.numero_celular,
-        correo_electronico: req.body.correo_electronico,
-        usuario: req.body.usuario // Asignacion del id usuario
+        materiaID: req.body.Number,
+        nombre: req.body.nombre,
+        descripcion: req.body.descripcion,
+        creditos: req.body.creditos,
+        docenteCI: req.body.docenteCI, // Asignacion del id docente
     })
     try{
-        const nuevoEstudiante = await estudiante.save();
-        res.status(201).json(nuevoEstudiante);
+        const nuevoMateria = await materia.save();
+        res.status(201).json(nuevoMateria);
     }catch(error){
         res.status(400).json({message : error.message});
     }
@@ -38,11 +33,11 @@ rutas.post('/registrar', async (req, res) => {
 //EndPoint 3, Editar
 rutas.put('/editar/:id', async (req, res) => {
     try{
-        const  estudianteEditado = await estudiantesModel.findByIdAndUpdate(req.params.id, req.body, {new : true});
-        if(!estudianteEditado){
-            return res.status(404).json({mensaje: 'Estudiante no encontrada!'});
+        const  materiaEditado = await materiaModel.findByIdAndUpdate(req.params.id, req.body, {new : true});
+        if(!materiaEditado){
+            return res.status(404).json({mensaje: 'Materia no encontrada!'});
         }else{
-            return res.json(estudianteEditado);
+            return res.json(materiaEditado);
         }
     }catch (error){
         res.status(400).json({mensaje : error.message});
@@ -51,11 +46,11 @@ rutas.put('/editar/:id', async (req, res) => {
 //End Point 4 Eliminar
 rutas.delete('/eliminar/:id',async (req, res) => {
     try{
-        const estudianteEliminado = await estudiantesModel.findByIdAndDelete(req.params.id);
-        if(!estudianteEliminado){
-            return res.status(404).json({mensaje : 'Estudiante no encontrado!'});
+        const materiaEliminado = await materiaModel.findByIdAndDelete(req.params.id);
+        if(!materiaEliminado){
+            return res.status(404).json({mensaje : 'Materia no encontrado!'});
         }else{
-            return res.json({mensaje : 'Estudiante Eliminado!'});
+            return res.json({mensaje : 'Materia Eliminado!'});
         }
     }catch(error){
         res.status(500).json({mensaje : error.message});
@@ -63,21 +58,22 @@ rutas.delete('/eliminar/:id',async (req, res) => {
 });
 
 //- EndPoint 5, obtener una estudiante por su ID
-rutas.get('/estudiante/:id', async (req, res) => {
+rutas.get('/materia/:id', async (req, res) => {
     try{
-        const estudiante = await estudiantesModel.findById(req.params.id);
-        if(!estudiante)
-            return res.status(404).json({mensaje : 'Estudiante no encontrado!'});
+        const materia = await materiaModel.findById(req.params.id);
+        if(!materia)
+            return res.status(404).json({mensaje : 'Materia no encontrado!'});
         else
-            return res.json(estudiante);
+            return res.json(materia);
     }catch(error){
         res.status(500).json({mensaje: error.message});
     }
 });
+/*
 //- EndPoint 6, obtener estudiante por municipio especifico
 rutas.get('/estudiantePorMunicipio/:municipios', async(req, res) => {
     try{
-        const estudianteMunicipio = await estudiantesModel.find({municipio : req.params.municipios});
+        const estudianteMunicipio = await materiaModel.find({municipio : req.params.municipios});
         return res.json(estudianteMunicipio);
     }catch(error){
         res.status(500).json({mensaje: error.message});
@@ -217,4 +213,5 @@ rutas.get('/estudiantesPorUsuarioYMunicipio/:usuarioId', async (req, res) => {
 rutas.get('/datos-protegidos', (req, res) => {
     res.json({ mensaje: 'Acceso a datos protegidos' });
 });
+*/
 module.exports = rutas;

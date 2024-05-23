@@ -8,6 +8,8 @@ require('dotenv').config();
 const app = express();
 // ruta
 const estudianteRutas1 = require('./rutas/estudianterutas');
+const docenteRutas = require('./rutas/docenterutas');
+const materiaRutas = require('./rutas/materiarutas');
 
 // configuraciones de environment
 const PORT = process.env.PORT || 3000;
@@ -38,5 +40,7 @@ const autenticar = async (req, res, next)=>{
 
 app.use('/auth', authRutas);
 app.use('/estudiantes', autenticar, estudianteRutas1);
+app.use('/docentes', autenticar, docenteRutas);
+app.use('/materias', autenticar, materiaRutas);
 // utilizar las rutas de estudiantes
 //app.use('/estudiantes',estudianteRutas1);

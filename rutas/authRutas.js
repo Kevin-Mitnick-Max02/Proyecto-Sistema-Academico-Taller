@@ -4,7 +4,7 @@ const Usuario = require('../models/usuario');
 const bcrypt = require ('bcrypt');
 const jwt = require ('jsonwebtoken');
 
-
+let tokensRevocados = [];
 // Registro
 rutas.post ('/registro', async (req, res) => {
     try {
@@ -17,6 +17,24 @@ rutas.post ('/registro', async (req, res) => {
         res.status(500).json({mensaje: 'Error de registro de usuario'});
     }
 });
+// Middleware para verificar el token
+function verificarToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+        return res.status(401).json({ mensaje: 'Token no proporcionado' });
+    }
+    const token = authHeader.split(' ')[1];
+    if (tokensRevocados.includes(token)) {
+        return res.status(401).json({ mensaje: 'Token revocado. Por favor, inicie sesión de nuevo.' });
+    }
+    jwt.verify(token, 'clave_secreta', (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ mensaje: 'Token no válido' });
+        }
+        req.usuarioId = decoded.usuarioId;
+        next();
+    });
+}
 
 // Inicio de sesion
 rutas.post('/iniciarsesion', async (req, res) => {
@@ -36,4 +54,20 @@ rutas.post('/iniciarsesion', async (req, res) => {
         res.status(500).json({mensaje: error.message});
     }
 });
+/*
+// Cerrar sesión
+rutas.post('/cerrarsesion', (req, res) => {
+    const authHeader = req.headers['authorization'];
+    console.log(authHeader);
+    if (!authHeader) {
+        return res.status(401).json({ mensaje: 'Token no proporcionado' });
+    }
+    const token = authHeader.split(' ')[1];
+    console.log(token);
+    tokensRevocados.push(token);
+    res.json({ mensaje: 'Sesión cerrada exitosamente' });
+});
+*/
+// Aplicar el middleware a las rutas que requieren autenticación
+// rutas.use(verificarToken);
 module.exports = rutas;
