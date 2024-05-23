@@ -12,7 +12,8 @@ const academicoSchema = new mongoose.Schema({
     municipio: String,
     direccion: String,
     numero_celular: String,
-    correo_electronico: String
+    correo_electronico: String,
+    usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'usuario'}
 });
 const estudiantesModel = mongoose.model('estudiante', academicoSchema, 'academico');
 module.exports = estudiantesModel;

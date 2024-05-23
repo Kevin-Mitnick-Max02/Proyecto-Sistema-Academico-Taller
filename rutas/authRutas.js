@@ -22,14 +22,14 @@ rutas.post ('/registro', async (req, res) => {
 rutas.post('/iniciarsesion', async (req, res) => {
     try {
         const {correo, contrasenia} = req.body;
-        const usuario = await Usuario.findOne({correo});
+        const usuario = await Usuario.findOne({ correo });
         if (!usuario)
             return res.status(401).json({error: 'Correo invalido !!!'});
             const validarContrasena = await usuario.compararContrasenia(contrasenia);
         if (!validarContrasena)
             return res.status(401).json({error: 'Contrasenia invalido !!!'});
         // Creacion de token
-        const token = jwt.sign({usuarioId: usuario._id},'clave_secreta', {expiresIn: '1h'});
+        const token = jwt.sign({ usuarioId: usuario._id },'clave_secreta', {expiresIn: '5h'});
         res.json({token});
     }   
     catch(error){

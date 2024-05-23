@@ -1,6 +1,7 @@
 const express = require ('express');
 const rutas = express.Router();
 const estudiantesModel = require('../models/academico');
+const UsuarioModel = require('../models/usuario');
 
 // Creacion de EndPoint traer todos los estudiantes
 rutas.get('/getEstudiantes',async(req, res)=>{
@@ -24,7 +25,8 @@ rutas.post('/registrar', async (req, res) => {
         municipio: req.body.municipio,
         direccion: req.body.direccion,
         numero_celular: req.body.numero_celular,
-        correo_electronico: req.body.correo_electronico
+        correo_electronico: req.body.correo_electronico,
+        usuario: req.body.usuario // Asignacion del id usuario
     })
     try{
         const nuevoEstudiante = await estudiante.save();
@@ -178,4 +180,52 @@ rutas.get('/fecha_nacimiento/:orden', async (req, res) => {
         res.status(500).json({mensaje: error.message});
     }
   });
+
+//REPORTES 1
+rutas.get('/estudiantePorUsuario/:usuarioId', async (req, res) => {
+    const {usuarioId} = req.params;
+   // console.log(usuarioId);
+    try{
+        const usuario = await UsuarioModel.findById(usuarioId);
+        console.log(usuario);
+        if (!usuario)
+            return res.status(404).json({mensaje: 'usuario no encontrado'});
+        const estudiante = await estudiantesModel.find({ usuario: usuarioId}).populate('usuario');
+        res.json(estudiante);
+
+    } catch(error){
+        res.status(500).json({ mensaje :  error.message});
+    }
+});
+/*
+//REPORTES 2
+//sumar porciones de recetas por Usuarios
+rutas.get('/porcionPorUsuario', async (req, res) => {
+    try {   
+        const usuarios = await UsuarioModel.find();
+        const reporte = await Promise.all(
+            usuarios.map( async ( usuario1 ) => {
+                const recetas = await RecetaModel.find({ usuario: usuario1._id});
+                const totalPorciones = recetas.reduce((sum, receta) => sum + receta.porciones, 0);
+                return {
+                    usuario: {
+                        _id: usuario1._id,
+                        nombreusuario: usuario1.nombreusuario
+                    },
+                    totalPorciones,
+                    recetas: recetas.map( r => ( {
+                        _id: r._id,
+                        nombre: r.nombre,
+                        porciones: r.porciones
+                    }))
+                }
+            } )
+        )
+        res.json(reporte);
+    } catch (error){
+        res.status(500).json({ mensaje :  error.message})
+    }
+})
+
+*/
 module.exports = rutas;
