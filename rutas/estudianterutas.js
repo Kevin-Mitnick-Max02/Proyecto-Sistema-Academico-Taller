@@ -197,35 +197,20 @@ rutas.get('/estudiantePorUsuario/:usuarioId', async (req, res) => {
         res.status(500).json({ mensaje :  error.message});
     }
 });
-/*
-//REPORTES 2
-//sumar porciones de recetas por Usuarios
-rutas.get('/porcionPorUsuario', async (req, res) => {
-    try {   
-        const usuarios = await UsuarioModel.find();
-        const reporte = await Promise.all(
-            usuarios.map( async ( usuario1 ) => {
-                const recetas = await RecetaModel.find({ usuario: usuario1._id});
-                const totalPorciones = recetas.reduce((sum, receta) => sum + receta.porciones, 0);
-                return {
-                    usuario: {
-                        _id: usuario1._id,
-                        nombreusuario: usuario1.nombreusuario
-                    },
-                    totalPorciones,
-                    recetas: recetas.map( r => ( {
-                        _id: r._id,
-                        nombre: r.nombre,
-                        porciones: r.porciones
-                    }))
-                }
-            } )
-        )
-        res.json(reporte);
-    } catch (error){
-        res.status(500).json({ mensaje :  error.message})
-    }
-})
 
-*/
+//REPORTES 2
+// mostrar a todos los estudiantes registrados por un usuario con un ID específico, que vivan en Arani
+rutas.get('/estudiantesPorUsuarioYMunicipio/:usuarioId', async (req, res) => {
+    const { usuarioId } = req.params;
+    try {
+        const usuario = await UsuarioModel.findById(usuarioId);
+        if (!usuario)
+            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+
+        const estudiantes = await estudiantesModel.find({ usuario: usuarioId, municipio: 'Arani' }).populate('usuario');
+        res.json(estudiantes);
+    } catch (error) {
+        res.status(500).json({ mensaje: error.message });
+    }
+});
 module.exports = rutas;
